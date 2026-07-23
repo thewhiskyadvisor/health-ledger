@@ -27,8 +27,10 @@
     --rust:#7d4125;      /* morning accent */
     --taupe:#96836e;     /* drinks accent */
     --grey:#75736e;      /* nightly accent / muted text */
+    --oura:#4a7c74;      /* Oura accent — muted slate-teal */
     --white:#ffffff;
-    --line: rgba(56,74,83,0.15);
+    --line: rgba(56,74,83,0.28);        /* subtly darker for a more framed feel */
+    --line-soft: rgba(56,74,83,0.15);   /* original lighter line, kept for inner dashes */
     --tint: rgba(56,74,83,0.045);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
@@ -149,6 +151,8 @@
     display:flex; gap:6px;
     padding:14px 16px 0;
     overflow-x:auto;
+    position:relative;
+    z-index:2;
   }
   .subtab{
     flex:1;
@@ -178,12 +182,17 @@
   .subtab.active[data-accent="workout"]{ border-top:3px solid var(--ink); }
   .subtab.active[data-accent="nightly"]{ border-top:3px solid var(--grey); }
   .subtab.active[data-accent="drinks"]{ border-top:3px solid var(--taupe); }
+  .subtab.active[data-accent="oura"]{ border-top:3px solid var(--oura); }
 
   /* ---------- CONTENT ---------- */
   main{
     flex:1;
     background:var(--white);
     padding:20px 18px 100px;
+    border-top:1px solid var(--line);
+    margin-top:-1px;      /* sits flush under the active tab, no visible seam */
+    position:relative;
+    z-index:1;
   }
 
   .ticket{
@@ -197,7 +206,7 @@
   .ticket::before{
     content:'';
     position:absolute; left:14px; right:14px; top:44px;
-    border-top:1px dashed var(--line);
+    border-top:1px dashed var(--line-soft);
   }
   .ticket-head{
     display:flex; justify-content:space-between; align-items:flex-start;
@@ -316,6 +325,53 @@
   .row-card[data-accent="workout"]{ border-left-color:var(--ink); }
   .row-card[data-accent="nightly"]{ border-left-color:var(--grey); }
   .row-card[data-accent="drinks"]{ border-left-color:var(--taupe); }
+  .row-card[data-accent="oura"]{ border-left-color:var(--oura); }
+
+  /* ---------- OURA THREE-TIER CARD ---------- */
+  .oura-card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    margin-bottom:11px;
+    overflow:hidden;
+  }
+  .oura-head{
+    display:flex; align-items:center; gap:9px;
+    padding:12px 13px; cursor:pointer; position:relative;
+  }
+  .oura-date{ min-width:52px; }
+  .oura-dow{ font-size:11px; color:var(--grey); line-height:1.1; }
+  .oura-dnum{ font-size:14px; font-weight:600; color:var(--ink); line-height:1.2; }
+  .oura-scores{ display:flex; gap:13px; flex:1; justify-content:center; }
+  .oura-sc{ text-align:center; min-width:36px; }
+  .oura-sc .v{ font-size:19px; font-weight:600; line-height:1.1; font-family:'Poppins',sans-serif; }
+  .oura-sc .l{ font-size:10px; color:var(--grey); }
+  .oura-pill{ font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; white-space:nowrap; }
+  .oura-chev{ color:var(--grey); font-size:13px; width:13px; text-align:center; transition:transform .2s ease; }
+  .oura-card.open .oura-chev{ transform:rotate(180deg); }
+  .oura-body{ display:none; border-top:1px dashed var(--line-soft); }
+  .oura-card.open .oura-body{ display:block; }
+  .oura-grp{ padding:11px 13px; border-bottom:1px solid var(--line-soft); }
+  .oura-grp:last-child{ border-bottom:none; }
+  .oura-gt{
+    font-size:10px; text-transform:uppercase; letter-spacing:.06em;
+    font-weight:600; margin-bottom:7px; display:flex; align-items:center; gap:7px;
+  }
+  .oura-gpill{ font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; }
+  .oura-rows{ display:grid; grid-template-columns:1fr 1fr; gap:5px 15px; }
+  .oura-r{ display:flex; justify-content:space-between; font-size:13px; gap:6px; align-items:baseline; }
+  .oura-r .k{ color:var(--grey); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .oura-r .val{ font-weight:600; color:var(--ink); flex-shrink:0; }
+  .oura-r .val .hint{ font-weight:400; font-size:11px; color:var(--grey); margin-left:4px; }
+  .oura-miss{ color:var(--grey)!important; font-weight:400!important; opacity:.6; }
+  .oura-more{
+    width:100%; background:var(--tint); border:none; padding:9px;
+    font-family:'Poppins',sans-serif; font-size:12px; font-weight:600;
+    color:var(--oura); cursor:pointer; text-align:center; border-radius:5px;
+    letter-spacing:.02em; margin-top:2px;
+  }
+  .oura-deep{ display:none; margin-top:9px; }
+  .oura-card.deepopen .oura-deep{ display:block; }
   .row-top{
     display:flex; justify-content:space-between; align-items:baseline;
     margin-bottom:8px;
@@ -333,7 +389,7 @@
   .row-grid b{ color:var(--ink); font-weight:600; }
   .row-note{
     margin-top:8px; font-size:12.5px; font-style:italic; color:var(--grey);
-    border-top:1px dashed var(--line); padding-top:8px;
+    border-top:1px dashed var(--line-soft); padding-top:8px;
   }
   .empty-state, .loading-state, .error-state{
     text-align:center; padding:50px 20px; color:var(--grey);
@@ -396,12 +452,14 @@
 const SHEET_ID = "1oETgpMsgv8mxFxgAp9FDLFPyTQGmd7KJKyzVE7fC70k";
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiiqNefkahB5jqL0YnZz_ZlZ580J0OH7lVc9jFNOETpHblvr1dJBaMkv36gSlucd0c/exec";
 
-const TABS = ["morning","workout","nightly","drinks"];
+const LOG_TABS  = ["morning","workout","nightly","drinks"];
+const VIEW_TABS = ["oura","morning","workout","nightly","drinks"];
 const TAB_META = {
   morning:  { label:"Morning",  accent:"morning",  sheetName:"Morning" },
   workout:  { label:"Workout",  accent:"workout",  sheetName:"Workout" },
   nightly:  { label:"Nightly",  accent:"nightly",  sheetName:"Nightly" },
   drinks:   { label:"Drinks",   accent:"drinks",   sheetName:"Drinks" },
+  oura:     { label:"Oura",     accent:"oura",     sheetName:"Oura" },
 };
 
 /* =========================================================
@@ -467,9 +525,12 @@ const FORM_SCHEMAS = {
 let state = {
   section: "log",
   logTab: "morning",
-  viewTab: "morning",
+  viewTab: "oura",
   formValues: { morning:{}, workout:{}, nightly:{}, drinks:{} },
   viewCache: {},
+  ouraExpanded: {},      // day -> true when a card is open
+  ouraDeepOpen: {},      // day -> true when "all raw fields" is open
+  ouraDefaultApplied: false,  // ensures the most-recent-day auto-expand happens only once
 };
 
 function dismissSplash(){
@@ -504,7 +565,8 @@ function setTab(tab){
 
 function renderSubtabs(){
   const c = document.getElementById('subtabs');
-  c.innerHTML = TABS.map(t=>{
+  const list = state.section === 'log' ? LOG_TABS : VIEW_TABS;
+  c.innerHTML = list.map(t=>{
     const meta = TAB_META[t];
     const active = currentTab()===t;
     return `<div class="subtab ${active?'active':''}" data-accent="${meta.accent}" onclick="setTab('${t}')">${meta.label}</div>`;
@@ -684,20 +746,22 @@ function submitForm(evt, tab){
 function loadViewTab(tab){
   const meta = TAB_META[tab];
   if(state.viewCache[tab]){
-    renderViewTable(tab, state.viewCache[tab]);
+    if(tab==='oura') renderOuraTable(state.viewCache[tab]); else renderViewTable(tab, state.viewCache[tab]);
     return;
   }
   const cbName = `gviz_cb_${tab}`;
   window[cbName] = function(json){
     state.viewCache[tab] = json;
     if(state.section==='view' && currentTab()===tab){
-      renderViewTable(tab, json);
+      if(tab==='oura') renderOuraTable(json); else renderViewTable(tab, json);
     }
     document.getElementById(cbName+'_tag')?.remove();
   };
   const script = document.createElement('script');
   script.id = cbName+'_tag';
-  script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}&sheet=${encodeURIComponent(meta.sheetName)}`;
+  // Oura has 600+ rows — pull only the newest 30 (column A = day) for speed.
+  const query = tab==='oura' ? ';tq=' + encodeURIComponent('select * order by A desc limit 30') : '';
+  script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}${query}&sheet=${encodeURIComponent(meta.sheetName)}`;
   script.onerror = function(){
     const main = document.getElementById('mainContent');
     if(state.section==='view' && currentTab()===tab){
@@ -764,6 +828,154 @@ function headlineFor(tab, cols, row){
   if(tab==='nightly') return get('Any Alcohol Today?')==='Yes' ? 'Alcohol: Yes' : 'Alcohol: No';
   if(tab==='drinks') return get('1. Drink') || 'Drink';
   return '';
+}
+
+/* =========================================================
+   RENDER: OURA (three-tier card)
+   ========================================================= */
+// Which fields sit in Tier 1 (first tap) vs the deepest tier ("all raw fields").
+// [label, sheetColumn, unit]. unit: ''=plain, 'hm'=minutes->Hh MM, 'pwv'=interpret, else suffix.
+const OURA_T1 = [
+  ["Sleep vitals", [["Lowest HR","lowest_hr","bpm"],["Avg HR","avg_hr","bpm"],["HRV","hrv","ms"]]],
+  ["Sleep stages", [["Total sleep","tst","hm"],["Time in bed","tib","hm"],["Deep","deep","hm"],["REM","rem","hm"],["Light","light","hm"],["Efficiency","eff","%"]]],
+  ["Sleep sub-scores", [["Deep","sc_deep_sleep",""],["REM","sc_rem_sleep",""],["Latency","sc_latency",""],["Restfulness","sc_restfulness",""],["Timing","sc_timing",""]]],
+  ["Readiness contributors", [["HRV balance","rc_hrv_balance",""],["Resting HR","rc_resting_heart_rate",""]]],
+  ["Activity", [["Total cal","total_cal",""],["Active cal","active_cal",""],["Steps","steps","n"]]],
+  ["Stress", [["High stress","stress_high","m"],["Recovery","recov_high","m"]], "stress_sum"],
+  ["Cardio", [["VO₂max","vo2",""],["Vascular age","vage","yr"]]],
+  ["Blood oxygen", [["SpO₂ avg","spo2","%"]]],
+];
+const OURA_T3 = [
+  ["Sleep (extra)", [["Efficiency score","sc_efficiency",""],["Total sleep score","sc_total_sleep",""],["Resp rate","breath","/min"],["Restless","restless",""],["Bedtime","bstart",""],["Wake","bend",""]]],
+  ["Temp + readiness", [["Temp dev","temp_dev","°C"],["Temp trend","temp_trend","°C"],["Recovery idx","rc_recovery_index",""],["Body temp","rc_body_temperature",""],["Activity bal","rc_activity_balance",""],["Sleep bal","rc_sleep_balance",""]]],
+  ["Activity breakdown", [["Walk dist","walk_m","m"],["High min","high_min","m"],["Med min","med_min","m"],["Low min","low_min","m"],["Sedentary","sed_min","m"],["Resting","rest_min","m"],["Avg MET","met_min",""],["Non-wear","nonwear_min","m"]]],
+  ["Cardio + O₂ detail", [["VO₂max conf","vo2_conf",""],["Breathing dist","bdi",""],["Pulse wave vel","pwv","pwv"]]],
+];
+const OURA_GROUP_ACCENTS = ["var(--ink)","var(--rust)","var(--taupe)","var(--grey)","var(--oura)"];
+
+function ouraScoreColor(v){
+  v = (v===''||v==null) ? null : +v;
+  if(v==null || isNaN(v)) return 'var(--grey)';
+  if(v>=85) return '#1d9e75';
+  if(v>=70) return 'var(--ink)';
+  return '#ba7517';
+}
+function ouraResPill(v){
+  const map={strong:'#1d9e75',solid:'#1d9e75',adequate:'#8a877f',limited:'#ba7517'};
+  const c = map[v] || 'var(--grey)';
+  if(!v) return `<span class="oura-pill oura-miss" style="background:var(--tint)">—</span>`;
+  return `<span class="oura-pill" style="background:${c}22;color:${c}">${v}</span>`;
+}
+function ouraStressPill(v){
+  const map={normal:'#1d9e75',restored:'#1d9e75',stressful:'#ba7517'};
+  const c = map[v] || 'var(--grey)';
+  if(!v) return '';
+  return `<span class="oura-gpill" style="background:${c}22;color:${c}">${v}</span>`;
+}
+function ouraHM(v){
+  if(v===''||v==null) return '—';
+  const m = +v; if(isNaN(m)) return v;
+  return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0');
+}
+// PWV interpreted relative to Uday's own recent baseline (~7.5 m/s). Directional, not clinical.
+function ouraPwvHint(v){
+  v=+v; if(isNaN(v)) return '';
+  if(v<7.45) return ' <span class="hint" style="color:#1d9e75">more elastic</span>';
+  if(v>7.6)  return ' <span class="hint" style="color:#ba7517">stiffer</span>';
+  return ' <span class="hint" style="color:#8a877f">typical</span>';
+}
+function ouraFmt(raw, unit){
+  if(raw===''||raw==null) return '<span class="oura-miss">—</span>';
+  if(unit==='hm') return ouraHM(raw);
+  if(unit==='m')  return (raw==='0'||raw===0) ? '0m' : raw+'m';
+  if(unit==='n')  { const n=+raw; return isNaN(n)?raw:n.toLocaleString(); }
+  if(unit==='%')  return raw+'%';
+  if(unit==='pwv')return raw+' m/s'+ouraPwvHint(raw);
+  if(unit==='')   return raw;
+  return raw+' '+unit;
+}
+function ouraGroups(rowObj, groups){
+  return groups.map((g, i)=>{
+    const [title, fields, pillKey] = g;
+    const accent = OURA_GROUP_ACCENTS[i % OURA_GROUP_ACCENTS.length];
+    const pill = pillKey ? ouraStressPill(rowObj[pillKey]) : '';
+    const rowsHtml = fields.map(([label,key,unit])=>
+      `<div class="oura-r"><span class="k">${label}</span><span class="val">${ouraFmt(rowObj[key], unit)}</span></div>`
+    ).join('');
+    return `<div class="oura-grp"><div class="oura-gt" style="color:${accent}">${title}${pill}</div><div class="oura-rows">${rowsHtml}</div></div>`;
+  }).join('');
+}
+function ouraDayLabel(dayStr){
+  // dayStr may be 'YYYY-MM-DD' (string) or a gviz Date(...) — normalise.
+  let d;
+  if(typeof dayStr==='string' && /^\d{4}-\d{2}-\d{2}/.test(dayStr)){
+    d = new Date(dayStr+'T00:00:00');
+  } else {
+    const parsed = parseGvizDate(dayStr);
+    d = new Date(parsed);
+    if(isNaN(d)) return { dow:'', n: dayStr };
+  }
+  return {
+    dow: d.toLocaleDateString('en-GB',{weekday:'short'}),
+    n: d.getDate()+' '+d.toLocaleDateString('en-GB',{month:'short'})
+  };
+}
+function renderOuraTable(json){
+  const main = document.getElementById('mainContent');
+  if(!json || !json.table || !json.table.rows || json.table.rows.length===0){
+    main.innerHTML = `<div class="empty-state">No Oura data yet.</div>`;
+    return;
+  }
+  const cols = json.table.cols.map(c=>c.label || '');
+  const rowObjs = json.table.rows.map(r=>{
+    const o = {};
+    r.c.forEach((cell,i)=>{
+      let v = cell ? (cell.f !== undefined ? cell.f : cell.v) : '';
+      o[cols[i]] = (v===null||v===undefined) ? '' : v;
+    });
+    return o;
+  });
+  // gviz already sorted newest-first via the query; guard anyway.
+  rowObjs.sort((a,b)=> (a.day < b.day ? 1 : a.day > b.day ? -1 : 0));
+
+  // First time this loads, default the most recent day open.
+  if(!state.ouraDefaultApplied && rowObjs.length){
+    state.ouraExpanded[rowObjs[0].day] = true;
+    state.ouraDefaultApplied = true;
+  }
+
+  main.innerHTML = rowObjs.map(o=>{
+    const day = o.day;
+    const t = ouraDayLabel(day);
+    const isOpen = state.ouraExpanded[day];
+    const isDeep = state.ouraDeepOpen[day];
+    const sc = (label,key)=>`<div class="oura-sc"><div class="v" style="color:${ouraScoreColor(o[key])}">${(o[key]===''||o[key]==null)?'—':o[key]}</div><div class="l">${label}</div></div>`;
+    return `
+      <div class="oura-card ${isOpen?'open':''} ${isDeep?'deepopen':''}">
+        <div class="oura-head" onclick="toggleOura('${day}')">
+          <div class="oura-date"><div class="oura-dow">${t.dow}</div><div class="oura-dnum">${t.n}</div></div>
+          <div class="oura-scores">${sc('sleep','sleep_score')}${sc('ready','readiness_score')}${sc('activ','activity_score')}</div>
+          ${ouraResPill(o.res)}
+          <span class="oura-chev">▼</span>
+        </div>
+        <div class="oura-body">
+          ${ouraGroups(o, OURA_T1)}
+          <div class="oura-grp" style="border-bottom:none">
+            <button class="oura-more" onclick="toggleOuraDeep(event,'${day}')">all raw fields</button>
+            <div class="oura-deep">${ouraGroups(o, OURA_T3)}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+function toggleOura(day){
+  state.ouraExpanded[day] = !state.ouraExpanded[day];
+  if(state.viewCache['oura']) renderOuraTable(state.viewCache['oura']);
+}
+function toggleOuraDeep(evt, day){
+  evt.stopPropagation();
+  state.ouraDeepOpen[day] = !state.ouraDeepOpen[day];
+  if(state.viewCache['oura']) renderOuraTable(state.viewCache['oura']);
 }
 
 /* =========================================================
