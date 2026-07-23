@@ -1,6 +1,6 @@
 {
   "name": "Uday's Health & Wellbeing",
-  "short_name": "Ledger",
+  "short_name": "Health",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
