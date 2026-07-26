@@ -8,9 +8,6 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Health">
 <title>Uday's Health &amp; Wellbeing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -497,9 +494,9 @@ const FORM_SCHEMAS = {
     fields: [
       { key:"Supplements", label:"Supplements", type:"multichip", options:["Vit C","Berberine (Breakfast)","Berberine (Dinner)","Creatine","Protein","Magnesium","Vit D (Fortnightly)","Activated Charcoal"], required:true },
       { key:"Hydration (ml)", label:"Hydration (ml)", type:"number", required:true },
-      { key:"Other Fluids (ml)", label:"Other fluids", type:"text", required:false, hint:"e.g. 600ml (Protein Shake)" },
+      { key:"Other Fluids (ml)", label:"Other fluids", type:"text", required:false, hint:"e.g. Water For Protein Mixing- 600ml" },
       { key:"Any Alcohol Today?", label:"Any alcohol today?", type:"chips", options:["Yes","No"], required:true },
-      { key:"Context", label:"Context", type:"chips", options:["Solo - Home","Friends - Home","Friends - Place","Family - Home","Club","Bar","Party","Work","Traveling - Work","Holiday","Other"], required:false, allowOther:true, showIf:{key:"Any Alcohol Today?", equals:"Yes"} },
+      { key:"Context", label:"Context", type:"chips", options:["Solo - Home","Friends - Home","Friends - Place","Family - Home","Club","Bar","Gandhipuram","Party","Work","Traveling - Work","Holiday","Other"], required:false, allowOther:true, showIf:{key:"Any Alcohol Today?", equals:"Yes"} },
       { key:"Drinking Session Duration", label:"Drinking session duration", type:"text", required:false, hint:"e.g. 180 mins (8PM - 11PM)", showIf:{key:"Any Alcohol Today?", equals:"Yes"} },
       { key:"Location", label:"Location", type:"chips", options:["Coimbatore","Traveling","Coimbatore - Traveling earlier in the day","Traveling - Coimbatore earlier in the day"], required:true },
       { key:"Any other medication", label:"Any other medication", type:"text", required:false },
@@ -509,7 +506,8 @@ const FORM_SCHEMAS = {
   drinks: {
     title: "Drinks",
     fields: [
-      { key:"1. Drink", label:"Drink", type:"chips", options:["Whisky","Bourbon","Rye","Gin","Tequila","Mezcal","Cocktail","Rum","Other"], required:true, allowOther:true },
+      { key:"1. Drink", label:"Drink Type", type:"chips", options:["Whisky","Bourbon","Rye","Gin","Tequila","Mezcal","Cocktail","Rum","Cognac","Beer","Other"], required:true, allowOther:true },
+      { key:"1b. Drink / Brand", label:"Drink / Brand", type:"text", required:false, hint:"e.g. Hoegaarden, Paul John, Hennessy" },
       { key:"2. ABV", label:"ABV", type:"number", required:true },
       { key:"3. Quantity (ml)", label:"Quantity (ml)", type:"number", required:true },
       { key:"4. Number of drinks", label:"Number of drinks", type:"number", required:true },
@@ -825,8 +823,15 @@ function headlineFor(tab, cols, row){
   };
   if(tab==='morning') return `${get('Weight (Kg)')} kg`;
   if(tab==='workout') return get('1. Type') || 'Workout';
-  if(tab==='nightly') return get('Any Alcohol Today?')==='Yes' ? 'Alcohol: Yes' : 'Alcohol: No';
-  if(tab==='drinks') return get('1. Drink') || 'Drink';
+  if(tab==='nightly'){
+    const yes = get('Any Alcohol Today?')==='Yes';
+    return `<span style="color:${yes ? '#b8443a' : '#1d9e75'}">Alcohol: ${yes ? 'Yes' : 'No'}</span>`;
+  }
+  if(tab==='drinks'){
+    const type = get('1. Drink') || 'Drink';
+    const brand = get('1b. Drink / Brand');
+    return brand ? `${type} — ${brand}` : type;
+  }
   return '';
 }
 
