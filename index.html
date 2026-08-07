@@ -253,6 +253,8 @@
     box-shadow:0 0 0 3px rgba(125,65,37,.12);
   }
   .field textarea{ min-height:60px; resize:vertical; }
+  .field textarea.textarea-lg{ min-height:max(320px, calc(100vh - 420px)); }
+  .field.field-grow{ display:flex; flex-direction:column; flex:1; }
   .other-input{ margin-top:8px; }
 
   .chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
@@ -524,7 +526,7 @@ const FORM_SCHEMAS = {
   journal: {
     title: "Daily Journal",
     fields: [
-      { key:"Entry", label:"Today", type:"textarea", required:true, hint:"Write freely about your day — as long or short as you want." },
+      { key:"Entry", label:"Today", type:"textarea", required:true, large:true, hint:"Write freely about your day — as long or short as you want." },
     ]
   }
 };
@@ -637,7 +639,7 @@ function renderField(tab, f, val){
         No scale this morning — log NA
       </label>`;
   } else if(f.type === 'textarea'){
-    inner = `<textarea oninput="updateField('${tab}','${escKey(f.key)}',this.value)">${val||''}</textarea>`;
+    inner = `<textarea ${f.large?'class="textarea-lg"':''} oninput="updateField('${tab}','${escKey(f.key)}',this.value)">${val||''}</textarea>`;
   } else if(f.type === 'chips'){
     inner = `<div class="chip-row">${f.options.map(o=>{
       const sel = val===o;
