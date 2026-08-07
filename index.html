@@ -474,9 +474,9 @@ const FORM_SCHEMAS = {
   morning: {
     title: "Morning",
     fields: [
-      { key:"Scale", label:"Scale", type:"chips", options:["Home","Other"], required:true, allowOther:true },
+      { key:"Scale", label:"Scale", type:"chips", options:["Home","Other"], required:true, allowOther:true, hideIfNA:"Weight (Kg)" },
       { key:"Weight (Kg)", label:"Weight (Kg)", type:"numOrNA", required:true, step:"0.1", hint:"No scale this morning? Tick the box to log NA instead of 0." },
-      { key:"Conditions", label:"Conditions", type:"chips", options:["Fasted Post-Loo","Pre-Loo","Other"], required:true, allowOther:true },
+      { key:"Conditions", label:"Conditions", type:"chips", options:["Fasted Post-Loo","Pre-Loo","Other"], required:true, allowOther:true, hideIfNA:"Weight (Kg)" },
       { key:"How Are You Feeling Today?", label:"How are you feeling today?", type:"text", required:true },
       { key:"Note (Optional)", label:"Note", type:"textarea", required:false },
     ]
@@ -602,6 +602,7 @@ function renderForm(tab){
   const vals = state.formValues[tab];
   const fieldsHtml = schema.fields.map(f=>{
     if(f.showIf && vals[f.showIf.key] !== f.showIf.equals) return '';
+    if(f.hideIfNA && vals[f.hideIfNA] === 'NA') return '';
     return renderField(tab, f, vals[f.key]);
   }).join('');
 
@@ -710,6 +711,7 @@ function submitForm(evt, tab){
   const vals = state.formValues[tab];
   for(const f of schema.fields){
     if(f.showIf && vals[f.showIf.key] !== f.showIf.equals) continue;
+    if(f.hideIfNA && vals[f.hideIfNA] === 'NA') continue;
     if(!f.required) continue;
     if(!vals[f.key]){
       showToast(`Please fill in: ${f.label}`);
@@ -726,7 +728,10 @@ function submitForm(evt, tab){
   btn.textContent = 'Saving…';
 
   const data = {};
-  schema.fields.forEach(f=>{ data[f.key] = resolvedValue(tab, f); });
+  schema.fields.forEach(f=>{
+    const hidden = f.hideIfNA && vals[f.hideIfNA] === 'NA';
+    data[f.key] = hidden ? '' : resolvedValue(tab, f);
+  });
   const payload = { sheet: TAB_META[tab].sheetName, data };
 
   const finish = (success) => {
