@@ -25,6 +25,7 @@
     --taupe:#96836e;     /* drinks accent */
     --grey:#75736e;      /* nightly accent / muted text */
     --oura:#4a7c74;      /* Oura accent — muted slate-teal */
+    --journal:#5b6f8c;   /* Journal accent — slate blue */
     --white:#ffffff;
     --line: rgba(56,74,83,0.28);        /* subtly darker for a more framed feel */
     --line-soft: rgba(56,74,83,0.15);   /* original lighter line, kept for inner dashes */
@@ -180,6 +181,7 @@
   .subtab.active[data-accent="nightly"]{ border-top:3px solid var(--grey); }
   .subtab.active[data-accent="drinks"]{ border-top:3px solid var(--taupe); }
   .subtab.active[data-accent="oura"]{ border-top:3px solid var(--oura); }
+  .subtab.active[data-accent="journal"]{ border-top:3px solid var(--journal); }
 
   /* ---------- CONTENT ---------- */
   main{
@@ -275,6 +277,7 @@
   .chip.selected[data-accent="workout"]{ background:var(--ink); border-color:var(--ink); }
   .chip.selected[data-accent="nightly"]{ background:var(--grey); border-color:var(--grey); }
   .chip.selected[data-accent="drinks"]{ background:var(--taupe); border-color:var(--taupe); }
+  .chip.selected[data-accent="journal"]{ background:var(--journal); border-color:var(--journal); }
 
   .hint{ font-size:12px; color:var(--grey); margin-top:6px; font-family:'Poppins',sans-serif;}
 
@@ -298,6 +301,7 @@
   .submit-btn[data-accent="workout"]{ background:var(--ink); }
   .submit-btn[data-accent="nightly"]{ background:var(--grey); }
   .submit-btn[data-accent="drinks"]{ background:var(--taupe); }
+  .submit-btn[data-accent="journal"]{ background:var(--journal); }
   .submit-btn:disabled{ opacity:.55; cursor:default; }
 
   .toast{
@@ -323,6 +327,7 @@
   .row-card[data-accent="nightly"]{ border-left-color:var(--grey); }
   .row-card[data-accent="drinks"]{ border-left-color:var(--taupe); }
   .row-card[data-accent="oura"]{ border-left-color:var(--oura); }
+  .row-card[data-accent="journal"]{ border-left-color:var(--journal); }
 
   /* ---------- OURA THREE-TIER CARD ---------- */
   .oura-card{
@@ -449,14 +454,15 @@
 const SHEET_ID = "1oETgpMsgv8mxFxgAp9FDLFPyTQGmd7KJKyzVE7fC70k";
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiiqNefkahB5jqL0YnZz_ZlZ580J0OH7lVc9jFNOETpHblvr1dJBaMkv36gSlucd0c/exec";
 
-const LOG_TABS  = ["morning","workout","nightly","drinks"];
-const VIEW_TABS = ["oura","morning","workout","nightly","drinks"];
+const LOG_TABS  = ["morning","workout","nightly","drinks","journal"];
+const VIEW_TABS = ["oura","morning","workout","nightly","drinks","journal"];
 const TAB_META = {
   morning:  { label:"Morning",  accent:"morning",  sheetName:"Morning" },
   workout:  { label:"Workout",  accent:"workout",  sheetName:"Workout" },
   nightly:  { label:"Nightly",  accent:"nightly",  sheetName:"Nightly" },
   drinks:   { label:"Drinks",   accent:"drinks",   sheetName:"Drinks" },
   oura:     { label:"Oura",     accent:"oura",     sheetName:"Oura" },
+  journal:  { label:"Journal",  accent:"journal",  sheetName:"Daily Journal" },
 };
 
 /* =========================================================
@@ -469,7 +475,7 @@ const FORM_SCHEMAS = {
     title: "Morning",
     fields: [
       { key:"Scale", label:"Scale", type:"chips", options:["Home","Other"], required:true, allowOther:true },
-      { key:"Weight (Kg)", label:"Weight (Kg)", type:"number", required:true, step:"0.1" },
+      { key:"Weight (Kg)", label:"Weight (Kg)", type:"numOrNA", required:true, step:"0.1", hint:"No scale this morning? Tick the box to log NA instead of 0." },
       { key:"Conditions", label:"Conditions", type:"chips", options:["Fasted Post-Loo","Pre-Loo","Other"], required:true, allowOther:true },
       { key:"How Are You Feeling Today?", label:"How are you feeling today?", type:"text", required:true },
       { key:"Note (Optional)", label:"Note", type:"textarea", required:false },
@@ -506,13 +512,19 @@ const FORM_SCHEMAS = {
   drinks: {
     title: "Drinks",
     fields: [
-      { key:"1. Drink", label:"Drink Type", type:"chips", options:["Whisky","Bourbon","Rye","Gin","Tequila","Mezcal","Cocktail","Rum","Cognac","Beer","Other"], required:true, allowOther:true },
+      { key:"1. Drink Type", label:"Drink Type", type:"chips", options:["Whisky","Bourbon","Rye","Gin","Tequila","Mezcal","Cocktail","Rum","Cognac","Beer","Other"], required:true, allowOther:true },
       { key:"1b. Drink / Brand", label:"Drink / Brand", type:"text", required:false, hint:"e.g. Hoegaarden, Paul John, Hennessy" },
       { key:"2. ABV", label:"ABV", type:"number", required:true },
       { key:"3. Quantity (ml)", label:"Quantity (ml)", type:"number", required:true },
       { key:"4. Number of drinks", label:"Number of drinks", type:"number", required:true },
       { key:"5. Accompaniment", label:"Accompaniment", type:"chips", options:["Neat","Water","Soda","Ice","Cocktail","Other"], required:true, allowOther:true },
       { key:"6. Notes (Optional)", label:"Notes", type:"textarea", required:false },
+    ]
+  },
+  journal: {
+    title: "Daily Journal",
+    fields: [
+      { key:"Entry", label:"Today", type:"textarea", required:true, hint:"Write freely about your day — as long or short as you want." },
     ]
   }
 };
@@ -524,7 +536,7 @@ let state = {
   section: "log",
   logTab: "morning",
   viewTab: "oura",
-  formValues: { morning:{}, workout:{}, nightly:{}, drinks:{} },
+  formValues: { morning:{}, workout:{}, nightly:{}, drinks:{}, journal:{} },
   viewCache: {},
   ouraExpanded: {},      // day -> true when a card is open
   ouraDeepOpen: {},      // day -> true when "all raw fields" is open
@@ -615,6 +627,14 @@ function renderField(tab, f, val){
     inner = `<input type="text" value="${val||''}" oninput="updateField('${tab}','${escKey(f.key)}',this.value)"/>`;
   } else if(f.type === 'number'){
     inner = `<input type="number" ${f.step?`step="${f.step}"`:''} value="${val||''}" oninput="updateField('${tab}','${escKey(f.key)}',this.value)"/>`;
+  } else if(f.type === 'numOrNA'){
+    const isNA = val === 'NA';
+    inner = `
+      <input type="number" ${f.step?`step="${f.step}"`:''} value="${isNA?'':(val||'')}" ${isNA?'disabled':''} oninput="updateField('${tab}','${escKey(f.key)}',this.value)"/>
+      <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12.5px;color:var(--grey);font-family:'Poppins',sans-serif;">
+        <input type="checkbox" ${isNA?'checked':''} onchange="toggleNA('${tab}','${escKey(f.key)}',this.checked)"/>
+        No scale this morning — log NA
+      </label>`;
   } else if(f.type === 'textarea'){
     inner = `<textarea oninput="updateField('${tab}','${escKey(f.key)}',this.value)">${val||''}</textarea>`;
   } else if(f.type === 'chips'){
@@ -648,6 +668,10 @@ function updateField(tab, key, value){
 }
 function updateOther(tab, key, value){
   state.formValues[tab][key+'__other'] = value;
+}
+function toggleNA(tab, key, checked){
+  state.formValues[tab][key] = checked ? 'NA' : '';
+  renderContent();
 }
 function selectChip(tab, key, option, multi){
   const vals = state.formValues[tab];
@@ -778,6 +802,13 @@ function parseGvizDate(v){
   return dt.toLocaleString('en-GB',{ day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
 }
 
+// Strips the leading form-order prefix ("1. ", "1b. ", "12. " etc.) from a
+// raw sheet header before it's shown to the user — the numbers are only
+// there to keep the Google Form field order stable, not for display.
+function cleanColLabel(label){
+  return (label||'').replace(/^\d+[a-zA-Z]?\.\s*/, '');
+}
+
 function renderViewTable(tab, json){
   const main = document.getElementById('mainContent');
   if(!json || !json.table || !json.table.rows || json.table.rows.length===0){
@@ -791,16 +822,29 @@ function renderViewTable(tab, json){
 
   const timestampIdx = cols.findIndex(c=>c.toLowerCase()==='timestamp');
   const noteIdx = cols.findIndex(c=>c.toLowerCase().includes('note'));
+  const entryIdx = cols.findIndex(c=>c==='Entry');
+
+  // Guard against duplicate/repeated columns in the underlying Sheet (e.g. two
+  // columns both literally named "1b. Drink / Brand") — only the first
+  // occurrence of any given (cleaned) label is shown in the grid.
+  const seenLabels = new Set();
+  const dupeIdx = cols.map((c,i)=>{
+    const clean = cleanColLabel(c);
+    if(seenLabels.has(clean)) return true;
+    seenLabels.add(clean);
+    return false;
+  });
 
   const cardsHtml = ordered.map(row=>{
     const ts = timestampIdx>=0 ? parseGvizDate(row[timestampIdx]) : '';
     const headline = headlineFor(tab, cols, row);
     const gridHtml = cols.map((c,i)=>{
-      if(i===timestampIdx || i===noteIdx) return '';
+      if(i===timestampIdx || i===noteIdx || i===entryIdx || dupeIdx[i]) return '';
       if(row[i]===''||row[i]===undefined||row[i]===null) return '';
-      return `<div style="font-size:11px;color:var(--grey);">${c}</div><div><b>${row[i]}</b></div>`;
+      return `<div style="font-size:11px;color:var(--grey);">${cleanColLabel(c)}</div><div><b>${row[i]}</b></div>`;
     }).join('');
     const noteHtml = (noteIdx>=0 && row[noteIdx]) ? `<div class="row-note">"${row[noteIdx]}"</div>` : '';
+    const entryHtml = (entryIdx>=0 && row[entryIdx]) ? `<div class="row-note">${row[entryIdx]}</div>` : '';
     return `
       <div class="row-card" data-accent="${TAB_META[tab].accent}">
         <div class="row-top">
@@ -809,6 +853,7 @@ function renderViewTable(tab, json){
         </div>
         <div class="row-grid">${gridHtml}</div>
         ${noteHtml}
+        ${entryHtml}
       </div>
     `;
   }).join('');
@@ -821,16 +866,23 @@ function headlineFor(tab, cols, row){
     const i = cols.findIndex(c=>c===name);
     return i>=0 ? row[i] : '';
   };
-  if(tab==='morning') return `${get('Weight (Kg)')} kg`;
+  if(tab==='morning'){
+    const w = get('Weight (Kg)');
+    return (w==='NA' || w==='' || w==null) ? 'NA' : `${w} kg`;
+  }
   if(tab==='workout') return get('1. Type') || 'Workout';
   if(tab==='nightly'){
     const yes = get('Any Alcohol Today?')==='Yes';
     return `<span style="color:${yes ? '#b8443a' : '#1d9e75'}">Alcohol: ${yes ? 'Yes' : 'No'}</span>`;
   }
   if(tab==='drinks'){
-    const type = get('1. Drink') || 'Drink';
+    const type = get('1. Drink Type') || 'Drink';
     const brand = get('1b. Drink / Brand');
     return brand ? `${type} — ${brand}` : type;
+  }
+  if(tab==='journal'){
+    const entry = get('Entry') || '';
+    return entry.length>60 ? entry.slice(0,60)+'…' : (entry || 'Journal entry');
   }
   return '';
 }
