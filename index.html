@@ -502,9 +502,9 @@ const FORM_SCHEMAS = {
     fields: [
       { key:"Supplements", label:"Supplements", type:"multichip", options:["Vit C","Berberine (Breakfast)","Berberine (Dinner)","Creatine","Protein","Magnesium","Vit D (Fortnightly)","Activated Charcoal"], required:true },
       { key:"Hydration (ml)", label:"Hydration (ml)", type:"number", required:true },
-      { key:"Other Fluids (ml)", label:"Other fluids", type:"text", required:false, hint:"e.g. Water For Protein Mixing- 600ml" },
+      { key:"Other Fluids (ml)", label:"Other fluids", type:"text", required:false, prefill:"Water For Protein Mixing- 300ml", hint:"Pre-filled; edit or clear if the day was different" },
       { key:"Any Alcohol Today?", label:"Any alcohol today?", type:"chips", options:["Yes","No"], required:true },
-      { key:"Context", label:"Context", type:"chips", options:["Solo - Home","Friends - Home","Friends - Place","Family - Home","Club","Bar","Gandhipuram","Party","Work","Traveling - Work","Holiday","Other"], required:false, allowOther:true, showIf:{key:"Any Alcohol Today?", equals:"Yes"} },
+      { key:"Context", label:"Context", type:"chips", options:["Solo - Home","Nhethra - Home","Friends - Home","Friends - Place","Family - Home","Club","Bar","Gandhipuram","Party","Work","Traveling - Work","Holiday","Other"], required:false, allowOther:true, showIf:{key:"Any Alcohol Today?", equals:"Yes"} },
       { key:"Drinking Session Duration", label:"Drinking session duration", type:"text", required:false, hint:"e.g. 180 mins (8PM - 11PM)", showIf:{key:"Any Alcohol Today?", equals:"Yes"} },
       { key:"Location", label:"Location", type:"chips", options:["Coimbatore","Traveling","Coimbatore - Traveling earlier in the day","Traveling - Coimbatore earlier in the day"], required:true },
       { key:"Any other medication", label:"Any other medication", type:"text", required:false },
@@ -602,6 +602,11 @@ function renderForm(tab){
   const schema = FORM_SCHEMAS[tab];
   const accent = TAB_META[tab].accent;
   const vals = state.formValues[tab];
+  // Seed schema defaults once per fresh form (state.formValues[tab] is reset to {} after each save).
+  // Only seeds when the key is absent, so clearing a pre-filled field by hand sticks.
+  schema.fields.forEach(f=>{
+    if(f.prefill !== undefined && vals[f.key] === undefined) vals[f.key] = f.prefill;
+  });
   const fieldsHtml = schema.fields.map(f=>{
     if(f.showIf && vals[f.showIf.key] !== f.showIf.equals) return '';
     if(f.hideIfNA && vals[f.hideIfNA] === 'NA') return '';
