@@ -418,6 +418,111 @@
     border-top:2px solid transparent;
   }
   .navbtn.active{ color:var(--white); border-top-color:var(--rust); }
+
+  /* ---------- NOW (one-tap capture) ---------- */
+  .now-intro{ margin:0 0 14px; font-size:12.5px; line-height:1.5; color:var(--grey); }
+  .now-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .now-btn{
+    min-height:92px; display:flex; flex-direction:column; align-items:flex-start;
+    justify-content:space-between; gap:6px; padding:14px;
+    background:var(--white); border:1px solid var(--line); border-radius:12px;
+    text-align:left; font-family:'Poppins',sans-serif; color:var(--ink); cursor:pointer;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .now-btn:active{ transform:scale(.97); background:var(--tint); }
+  .now-btn .nm{ font-size:14.5px; font-weight:600; }
+  .now-btn .sb{ font-size:12px; color:var(--grey); }
+  .now-btn .ct{ font-size:11px; font-weight:600; letter-spacing:.04em; color:var(--oura); }
+  .now-btn .ct.none{ font-weight:400; letter-spacing:0; color:var(--grey); }
+  .now-btn .ct.over{ color:var(--rust); }
+  .now-btn.paused{ background:#F7F6F4; border-style:dashed; cursor:default; }
+  .now-btn.paused:active{ transform:none; background:#F7F6F4; }
+  .now-btn.paused .nm{ color:var(--grey); }
+  .now-btn.bm{ background:var(--oura); border-color:var(--oura); }
+  .now-btn.bm:active{ background:#3f6b64; }
+  .now-btn.bm .nm, .now-btn.bm .ct{ color:#fff; }
+  .now-btn.bm .sb{ color:#eaf2f0; }
+  .bm-panel{
+    margin-top:12px; border:1px solid var(--oura); border-radius:12px; padding:16px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .bm-head{ display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13.5px; font-weight:600; color:var(--oura); }
+  .bm-cancel{ background:none; border:0; color:var(--grey); font-family:inherit; font-size:12.5px; cursor:pointer; min-height:44px; padding:0 4px; }
+  .bm-qs{ display:flex; gap:20px; flex-wrap:wrap; border-top:1px dashed var(--line-soft); padding-top:14px; }
+  .bm-q .q{ font-size:12px; color:var(--grey); margin-bottom:8px; }
+  .bm-opts{ display:flex; gap:8px; }
+  .bm-opt{
+    min-height:44px; min-width:62px; padding:0 16px; border:1px solid var(--line); border-radius:999px;
+    font-family:inherit; font-size:14px; background:#fff; color:var(--ink); cursor:pointer;
+  }
+  .bm-opt.on{ background:var(--oura); border-color:var(--oura); color:#fff; font-weight:600; }
+  .bm-save{
+    min-height:48px; background:var(--oura); color:#fff; border:0; border-radius:10px;
+    font-family:inherit; font-size:15px; font-weight:600; cursor:pointer;
+  }
+  .out-panel{ border-color:var(--ink); }
+  .out-panel .bm-head{ color:var(--ink); }
+  .out-where{ border-top:1px dashed var(--line-soft); padding-top:14px; }
+  .out-where label{ display:block; font-size:12px; color:var(--grey); margin-bottom:8px; }
+  .out-where label span{ font-style:italic; }
+  .out-where input{
+    width:100%; font-family:'Poppins',sans-serif; font-size:15px; padding:11px 12px;
+    border:1px solid var(--line); border-radius:8px; color:var(--ink); background:#fff;
+  }
+  .out-where input:focus{ outline:none; border-color:var(--ink); box-shadow:0 0 0 3px rgba(56,74,83,.12); }
+  .out-sizes{ display:flex; flex-direction:column; gap:8px; }
+  .out-sizes .q{ font-size:12px; color:var(--grey); }
+  .out-size{
+    min-height:48px; background:var(--ink); color:#fff; border:0; border-radius:10px;
+    font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; text-align:center;
+  }
+  .out-size:active{ transform:scale(.98); }
+  .today-head{ display:flex; align-items:center; gap:10px; margin:24px 0 4px; }
+  .today-head .t{ font-size:13px; font-weight:600; }
+  .today-head .rule{ flex:1; height:1px; background:var(--line-soft); }
+  .today-head .n{ font-size:11px; color:var(--grey); }
+  .today-row{ display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px dashed var(--line-soft); font-size:13px; }
+  .today-row:last-child{ border-bottom:none; }
+  .today-row .nt{ display:block; font-size:11.5px; color:var(--grey); font-style:italic; margin-top:2px; }
+  .today-row .tm{ color:var(--grey); white-space:nowrap; text-align:right; }
+  .today-row .st{ display:block; font-size:10.5px; margin-top:2px; }
+  .today-row .st.ok{ color:#1d9e75; }
+  .today-row .st.wait{ color:var(--grey); }
+  .today-row .st.bad{ color:var(--rust); font-weight:600; }
+  .today-empty{ font-size:12.5px; color:var(--grey); padding:10px 0; }
+
+  .now-strip{
+    position:fixed; left:0; right:0; bottom:58px; max-width:520px; margin:0 auto; z-index:30;
+    padding:0 12px; transform:translateY(20px); opacity:0; pointer-events:none; transition:all .25s ease;
+  }
+  .now-strip.show{ transform:none; opacity:1; pointer-events:auto; }
+  .now-strip-in{ background:var(--ink); color:#fff; border-radius:12px; padding:12px 14px; box-shadow:0 6px 18px rgba(0,0,0,.28); font-family:'Poppins',sans-serif; }
+  .ns-top{ font-size:13.5px; font-weight:600; }
+  .ns-acts{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .ns-btn{
+    min-height:44px; padding:0 14px; border-radius:999px; border:1px solid rgba(255,255,255,.45);
+    background:transparent; color:#fff; font-family:inherit; font-size:12.5px; font-weight:500; cursor:pointer;
+  }
+  .ns-btn.primary{ background:#fff; color:var(--ink); border-color:#fff; font-weight:600; }
+  .ns-edit{ display:flex; gap:8px; margin-top:10px; }
+  .ns-edit input{ flex:1; min-width:0; font-family:inherit; font-size:15px; padding:9px 10px; border-radius:8px; border:0; color:var(--ink); background:#fff; }
+  .ns-bar{ height:2px; background:rgba(255,255,255,.25); border-radius:2px; margin-top:11px; overflow:hidden; }
+  .ns-bar i{ display:block; height:100%; width:100%; background:#C7794C; transform-origin:left; animation:nsbar linear forwards; }
+  @keyframes nsbar{ from{ transform:scaleX(1);} to{ transform:scaleX(0);} }
+
+  .sync-badge{
+    display:none; width:100%; text-align:left; margin-top:10px; font-family:'Poppins',sans-serif;
+    font-size:11.5px; font-weight:500; color:var(--rust); background:rgba(125,65,37,.07);
+    border:1px solid rgba(125,65,37,.3); border-radius:6px; padding:8px 10px; cursor:pointer;
+  }
+  .sync-badge.show{ display:block; }
+  .view-foot{ text-align:center; font-size:11.5px; color:var(--grey); padding:8px 0 4px; }
+  .load-more{
+    display:block; width:100%; min-height:48px; margin:12px 0 4px; background:#fff; color:var(--ink);
+    border:1px solid var(--line); border-radius:10px; font-family:'Poppins',sans-serif; font-size:14px; font-weight:600; cursor:pointer;
+  }
+  .load-more:active{ background:var(--tint); }
+  .load-more:disabled{ color:var(--grey); cursor:default; }
 </style>
 </head>
 <body>
@@ -436,6 +541,7 @@
       <div class="date-badge" id="dateBadge">—</div>
     </div>
     <div class="section-label" id="sectionLabel">LOG</div>
+    <button type="button" class="sync-badge" id="syncBadge" onclick="flushQueue(true)"></button>
   </header>
 
   <div class="subtabs" id="subtabs"></div>
@@ -443,10 +549,12 @@
 
   <nav class="bottomnav">
     <div class="navbtn active" id="navLog" onclick="setSection('log')">Log</div>
+    <div class="navbtn" id="navNow" onclick="setSection('now')">Now</div>
     <div class="navbtn" id="navView" onclick="setSection('view')">View</div>
   </nav>
 </div>
 
+<div class="now-strip" id="nowStrip" aria-live="polite"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -455,6 +563,28 @@
    ========================================================= */
 const SHEET_ID = "1oETgpMsgv8mxFxgAp9FDLFPyTQGmd7KJKyzVE7fC70k";
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiiqNefkahB5jqL0YnZz_ZlZ580J0OH7lVc9jFNOETpHblvr1dJBaMkv36gSlucd0c/exec";
+
+const EVENTS_SHEET = "Events";   // one-tap captures from the Now tab
+const VIEW_LIMIT = 30;           // rows pulled per View tab (newest first)
+const VIEW_CACHE_MS = 5*60*1000; // View data is re-read after this long
+const HOLD_MS = 7000;            // a Now tap can be edited/undone for this long before it is sent
+const LATE_MS = 2*60*1000;       // a form entry sent later than this gets a "[logged …]" marker
+
+// Outside food sizes — exactly what gets written to the Value column.
+const OUT_SIZES = ["Full meal","Part of a meal","Snack or sweet"];
+
+// Now tab buttons. `event` and `value` are exactly what gets written to the Events sheet.
+// paused:true switches the button off (greyed, cannot be tapped). Remove it to bring that item back.
+const NOW_ITEMS = [
+  { id:"creatine",  event:"Creatine",       value:"3g",      sub:"3 g",       perDay:3 },
+  { id:"protein",   event:"Protein shake",  value:"1 scoop", sub:"1 scoop",   perDay:1 },
+  { id:"berberine", event:"Berberine",      value:"1 cap",   sub:"1 capsule", perDay:2 },
+  { id:"magnesium", event:"Magnesium",      value:"1 tab",   sub:"1 tablet",  perDay:3, paused:true },
+  // Flax (value "2 tsp") was removed 3 Oct 2026 to make room for Outside food. It is out indefinitely;
+  // to bring it back add: { id:"flax", event:"Flax", value:"2 tsp", sub:"2 tsp" }
+  { id:"outside",   event:"Outside food",   sub:"tap, then pick a size", zero:"none today", out:true },
+  { id:"bm",        event:"Bowel movement", sub:"tap, then two questions", bm:true },
+];
 
 const LOG_TABS  = ["morning","workout","nightly","drinks","journal"];
 const VIEW_TABS = ["oura","morning","workout","nightly","drinks","journal"];
@@ -500,9 +630,10 @@ const FORM_SCHEMAS = {
   nightly: {
     title: "Nightly",
     fields: [
-      { key:"Supplements", label:"Supplements", type:"multichip", options:["Vit C","Berberine (Breakfast)","Berberine (Dinner)","Creatine","Protein","Magnesium","Vit D (Fortnightly)","Activated Charcoal"], required:true },
+      { key:"Bloating", label:"Bloating today?", type:"chips", options:["No","Yes"], required:true, hint:"Your overall impression of the whole day." },
+      { key:"Supplements", label:"Supplements", type:"multichip", options:["Vit C","Vit D (Fortnightly)","Activated Charcoal"], required:false },
       { key:"Hydration (ml)", label:"Hydration (ml)", type:"number", required:true },
-      { key:"Other Fluids (ml)", label:"Other fluids", type:"text", required:false, prefill:"Water For Protein Mixing- 300ml", hint:"Pre-filled; edit or clear if the day was different" },
+      { key:"Other Fluids (ml)", label:"Other fluids", type:"text", required:false, hint:"E.g. Juice - 200ml" },
       { key:"Any Alcohol Today?", label:"Any alcohol today?", type:"chips", options:["Yes","No"], required:true },
       { key:"Context", label:"Context", type:"chips", options:["Solo - Home","Nhethra - Home","Friends - Home","Friends - Place","Family - Home","Club","Bar","Gandhipuram","Party","Work","Traveling - Work","Holiday","Other"], required:false, allowOther:true, showIf:{key:"Any Alcohol Today?", equals:"Yes"} },
       { key:"Drinking Session Duration", label:"Drinking session duration", type:"text", required:false, hint:"e.g. 180 mins (8PM - 11PM)", showIf:{key:"Any Alcohol Today?", equals:"Yes"} },
@@ -539,7 +670,10 @@ let state = {
   logTab: "morning",
   viewTab: "oura",
   formValues: { morning:{}, workout:{}, nightly:{}, drinks:{}, journal:{} },
+  bm: null,              // open bowel-movement panel on the Now tab: { at, loose, meal }
+  out: null,             // open outside-food panel on the Now tab: { at, place }
   viewCache: {},
+  viewLimit: {},         // rows asked for per View tab; starts at VIEW_LIMIT, grows with "Load more"
   ouraExpanded: {},      // day -> true when a card is open
   ouraDeepOpen: {},      // day -> true when "all raw fields" is open
   ouraDefaultApplied: false,  // ensures the most-recent-day auto-expand happens only once
@@ -560,7 +694,9 @@ document.getElementById('dateBadge').textContent = fmtDate();
 function setSection(section){
   state.section = section;
   document.getElementById('navLog').classList.toggle('active', section==='log');
+  document.getElementById('navNow').classList.toggle('active', section==='now');
   document.getElementById('navView').classList.toggle('active', section==='view');
+  document.getElementById('subtabs').style.display = section==='now' ? 'none' : '';
   document.getElementById('sectionLabel').textContent = section.toUpperCase();
   renderSubtabs();
   renderContent();
@@ -577,6 +713,7 @@ function setTab(tab){
 
 function renderSubtabs(){
   const c = document.getElementById('subtabs');
+  if(state.section === 'now'){ c.innerHTML = ''; return; }
   const list = state.section === 'log' ? LOG_TABS : VIEW_TABS;
   c.innerHTML = list.map(t=>{
     const meta = TAB_META[t];
@@ -590,7 +727,9 @@ function renderSubtabs(){
    ========================================================= */
 function renderContent(){
   const main = document.getElementById('mainContent');
-  if(state.section === 'log'){
+  if(state.section === 'now'){
+    main.innerHTML = renderNow();
+  } else if(state.section === 'log'){
     main.innerHTML = renderForm(currentTab());
   } else {
     main.innerHTML = `<div class="loading-state">Loading ${TAB_META[currentTab()].label.toLowerCase()} entries…</div>`;
@@ -648,7 +787,7 @@ function renderField(tab, f, val){
   } else if(f.type === 'chips'){
     inner = `<div class="chip-row">${f.options.map(o=>{
       const sel = val===o;
-      return `<div class="chip ${sel?'selected':''}" data-accent="${TAB_META[tab].accent}" onclick="selectChip('${tab}','${escKey(f.key)}','${escKey(o)}', false)">${o}</div>`;
+      return `<div class="chip ${sel?'selected':''}" data-accent="${TAB_META[tab].accent}" onclick="selectChip('${tab}','${escKey(f.key)}','${escKey(o)}', false)">${(f.optionLabels && f.optionLabels[o]) || o}</div>`;
     }).join('')}</div>`;
     if(f.allowOther && val === 'Other'){
       const otherVal = state.formValues[tab][f.key+'__other'] || '';
@@ -730,48 +869,362 @@ function submitForm(evt, tab){
     }
   }
 
-  const btn = document.getElementById(`submitBtn-${tab}`);
-  btn.disabled = true;
-  btn.textContent = 'Saving…';
-
   const data = {};
   schema.fields.forEach(f=>{
     const hidden = f.hideIfNA && vals[f.hideIfNA] === 'NA';
     data[f.key] = hidden ? '' : resolvedValue(tab, f);
   });
-  const payload = { sheet: TAB_META[tab].sheetName, data };
 
-  const finish = (success) => {
-    btn.disabled = false;
-    btn.textContent = 'Save entry';
-    if(success){
-      showToast(`${schema.title} entry saved ✓`);
-      state.formValues[tab] = {};
-      renderContent();
-    } else {
-      showToast(`Couldn't reach the Sheet — check setup`);
+  // Saved on the phone first, then sent in the background. Nothing is lost if the send fails —
+  // it stays in the queue and is retried until the Sheet confirms it.
+  const noteField = schema.fields.find(f=>/note/i.test(f.key)) || schema.fields.find(f=>f.key==='Entry');
+  enqueue({
+    qid:newId(), kind:'form', tab, sheet:TAB_META[tab].sheetName, label:schema.title,
+    data, at:Date.now(), noteKey: noteField ? noteField.key : null
+  });
+  showToast(`${schema.title} entry saved — sending to Sheet`);
+  state.formValues[tab] = {};
+  renderContent();
+  window.scrollTo(0,0);
+  return false;
+}
+
+/* =========================================================
+   SEND QUEUE — every entry (forms and Now taps) goes through here.
+   Held in localStorage so it survives the app being closed.
+   An entry leaves the queue only when the Sheet script answers {"ok":true}.
+   ========================================================= */
+const LS_QUEUE = 'hl_queue_v1';
+const LS_TODAY = 'hl_today_v1';
+function lsGet(k, fallback){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function dayKey(d){ d = d || new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function hhmm(ms){ const d = new Date(ms); return pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+function sheetTime(ms){ const d = new Date(ms); return dayKey(d)+' '+pad2(d.getHours())+':'+pad2(d.getMinutes())+':'+pad2(d.getSeconds()); }
+function newId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+let queue = lsGet(LS_QUEUE, []);
+queue.forEach(q=>{ q.hold = false; q.sending = false; });   // anything left mid-hold by a closed app is released
+let flushing = false;
+let lastSendReached = true;
+
+function saveQueue(){ lsSet(LS_QUEUE, queue); renderSyncBadge(); }
+function enqueue(item){ queue.push(item); saveQueue(); flushQueue(); }
+
+// What actually gets written for a queued item.
+function payloadFor(item){
+  if(item.kind === 'event'){
+    return { sheet:EVENTS_SHEET, data:{ "Event Time":sheetTime(item.at), "Event":item.event, "Value":item.value, "Note":item.note || '' } };
+  }
+  const data = Object.assign({}, item.data);
+  // The Sheet stamps the time the row ARRIVES. If this entry is going out late, say when it was really logged.
+  if(item.noteKey && Date.now() - item.at > LATE_MS){
+    const d = new Date(item.at);
+    const marker = `[logged ${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} ${hhmm(item.at)}, sent late]`;
+    data[item.noteKey] = data[item.noteKey] ? `${data[item.noteKey]} ${marker}` : marker;
+  }
+  return { sheet:item.sheet, data };
+}
+
+function postEntry(item){
+  const body = JSON.stringify(payloadFor(item));
+  return fetch(APPS_SCRIPT_URL, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body,
+    keepalive: body.length < 60000
+  }).then(r=>r.text()).then(t=>{
+    let j = null; try{ j = JSON.parse(t); }catch(e){}
+    return !!(j && j.ok === true);
+  });
+}
+
+async function flushQueue(manual){
+  if(manual){ queue.forEach(q=>{ q.failed = false; q.tries = 0; }); saveQueue(); }
+  if(flushing) return;
+  flushing = true;
+  const tried = new Set();
+  try{
+    while(true){
+      const item = queue.find(q=>!tried.has(q.qid) && !q.hold && !q.failed);
+      if(!item) break;
+      tried.add(item.qid);
+      item.sending = true; renderSyncBadge();
+      let ok = false, reached = true;
+      try{ ok = await postEntry(item); }catch(e){ reached = false; }
+      item.sending = false;
+      lastSendReached = reached;
+      if(ok){
+        queue = queue.filter(q=>q.qid !== item.qid);
+        saveQueue();
+        onSent(item);
+      } else if(!reached){
+        saveQueue();
+        break;                       // no connection — stop and wait for the next retry
+      } else {
+        item.tries = (item.tries||0) + 1;
+        if(item.tries >= 3) item.failed = true;   // the Sheet answered but did not accept it
+        saveQueue();
+      }
     }
-  };
+  } finally {
+    flushing = false;
+    renderSyncBadge();
+    if(state.section === 'now') renderContent();
+  }
+}
 
-  if(!APPS_SCRIPT_URL){
-    setTimeout(()=>{
-      console.log('[local-only, no Apps Script URL set]', payload);
-      showToast(`${schema.title} entry captured locally (Sheet not yet connected)`);
-      state.formValues[tab] = {};
-      renderContent();
-      btn.disabled = false;
-    }, 400);
-    return false;
+function onSent(item){
+  if(item.kind === 'form'){
+    delete state.viewCache[item.tab];
+    showToast(`${item.label} entry is in the Sheet ✓`);
+  }
+}
+
+function renderSyncBadge(){
+  const el = document.getElementById('syncBadge');
+  if(!el) return;
+  const live = queue.filter(q=>!q.hold);
+  if(!live.length){ el.classList.remove('show'); el.textContent = ''; return; }
+  const n = live.length, word = n===1 ? 'entry' : 'entries';
+  const failed = live.filter(q=>q.failed).length;
+  let msg;
+  if(live.some(q=>q.sending)) msg = `Sending ${n} ${word} to the Sheet…`;
+  else if(failed) msg = `${failed} ${failed===1?'entry':'entries'} not accepted by the Sheet · tap to retry`;
+  else if(!lastSendReached) msg = `${n} ${word} waiting — no connection · will retry · tap to retry now`;
+  else msg = `${n} ${word} waiting to send · tap to retry now`;
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+window.addEventListener('online', ()=>flushQueue());
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible'){ rollDay(); flushQueue(); if(state.section==='now') renderContent(); }
+  else commitHeld();
+});
+window.addEventListener('pagehide', ()=>commitHeld());
+setInterval(()=>{ if(queue.some(q=>!q.hold && !q.failed)) flushQueue(); }, 60000);
+
+/* =========================================================
+   NOW — one tap = one timestamped row in the Events sheet.
+   "Today so far" lives in localStorage and resets at midnight.
+   ========================================================= */
+let today = lsGet(LS_TODAY, null);
+function rollDay(){
+  const k = dayKey();
+  if(!today || today.date !== k){ today = { date:k, items:[] }; lsSet(LS_TODAY, today); }
+  const badge = document.getElementById('dateBadge');
+  if(badge) badge.textContent = fmtDate();
+}
+function saveToday(){ lsSet(LS_TODAY, today); }
+
+let held = null;        // { qid, mode:null|'time'|'note', timer }
+
+function nowTap(id){
+  const it = NOW_ITEMS.find(x=>x.id === id);
+  if(!it || it.paused) return;
+  if(it.bm){
+    state.bm = state.bm ? null : { at:Date.now(), loose:'No', meal:'No' };
+    state.out = null;
+    renderContent();
+    return;
+  }
+  if(it.out){
+    state.out = state.out ? null : { at:Date.now(), place:'' };
+    state.bm = null;
+    renderContent();
+    return;
+  }
+  holdEntry({ event:it.event, value:it.value, label:`${it.event} · ${it.value}`, at:Date.now() });
+}
+const LS_PLACES = 'hl_places_v1';   // remembered restaurant names, so the same place is spelled the same way
+function outPlace(v){ if(state.out) state.out.place = v; }
+function outCancel(){ state.out = null; renderContent(); }
+function outSave(size){
+  const o = state.out; if(!o) return;
+  const place = (o.place || '').trim();
+  if(place){
+    let places = lsGet(LS_PLACES, []).filter(p=>p.toLowerCase() !== place.toLowerCase());
+    places.unshift(place);
+    lsSet(LS_PLACES, places.slice(0, 40));
+  }
+  state.out = null;
+  holdEntry({ event:'Outside food', value:size, label:`Outside food · ${size.toLowerCase()}`, at:o.at, note:place });
+}
+function bmSet(key, val){ if(state.bm){ state.bm[key] = val; renderContent(); } }
+function bmCancel(){ state.bm = null; renderContent(); }
+function bmSave(){
+  const b = state.bm; if(!b) return;
+  const desc = (b.loose==='Yes' ? 'loose' : 'normal') + (b.meal==='Yes' ? ', soon after a meal' : '');
+  state.bm = null;
+  holdEntry({ event:'Bowel movement', value:`Loose: ${b.loose}; After meal: ${b.meal}`, label:`Bowel movement · ${desc}`, at:b.at });
+}
+
+// A new capture is written to the phone at once, shown in "Today so far", and held for a few
+// seconds so the time can be corrected, a note added, or the tap undone. Then it is sent.
+function holdEntry(e){
+  commitHeld();
+  rollDay();
+  const qid = newId();
+  const note0 = e.note || '';
+  today.items.push({ qid, event:e.event, value:e.value, label:e.label, at:e.at, note:note0 });
+  saveToday();
+  queue.push({ qid, kind:'event', event:e.event, value:e.value, label:e.label, at:e.at, note:note0, hold:true });
+  saveQueue();
+  held = { qid, mode:null, timer:null };
+  armHold();
+  renderStrip();
+  if(state.section === 'now') renderContent();
+}
+function heldItem(){ return held ? queue.find(q=>q.qid === held.qid) : null; }
+function armHold(){
+  if(!held) return;
+  clearTimeout(held.timer);
+  held.timer = setTimeout(commitHeld, HOLD_MS);
+}
+function stripMode(mode){
+  if(!held) return;
+  clearTimeout(held.timer);
+  held.mode = mode;
+  renderStrip();
+  const inp = document.getElementById(mode==='time' ? 'nsTime' : 'nsNote');
+  if(inp) inp.focus();
+}
+function applyStripInputs(){
+  const q = heldItem(); if(!q) return;
+  const t = today.items.find(i=>i.qid === q.qid);
+  const timeEl = document.getElementById('nsTime');
+  const noteEl = document.getElementById('nsNote');
+  if(timeEl && /^\d{2}:\d{2}$/.test(timeEl.value)){
+    const [h, m] = timeEl.value.split(':').map(Number);
+    if(timeEl.value !== hhmm(q.at)){
+      const d = new Date(q.at); d.setHours(h, m, 0, 0);
+      q.at = d.getTime(); if(t) t.at = q.at;
+    }
+  }
+  if(noteEl){ q.note = noteEl.value.trim(); if(t) t.note = q.note; }
+  saveToday(); saveQueue();
+}
+function stripDone(){
+  if(!held) return;
+  applyStripInputs();
+  held.mode = null;
+  armHold();
+  renderStrip();
+  if(state.section === 'now') renderContent();
+}
+function commitHeld(){
+  if(!held) return;
+  applyStripInputs();
+  clearTimeout(held.timer);
+  const q = heldItem();
+  if(q) q.hold = false;
+  held = null;
+  saveQueue();
+  renderStrip();
+  flushQueue();
+}
+function undoHeld(){
+  if(!held) return;
+  clearTimeout(held.timer);
+  const qid = held.qid;
+  queue = queue.filter(q=>q.qid !== qid);
+  today.items = today.items.filter(i=>i.qid !== qid);
+  held = null;
+  saveToday(); saveQueue();
+  renderStrip();
+  showToast('Removed — nothing was sent');
+  if(state.section === 'now') renderContent();
+}
+function renderStrip(){
+  const el = document.getElementById('nowStrip');
+  const q = heldItem();
+  if(!q){ el.classList.remove('show'); el.innerHTML = ''; return; }
+  let body;
+  if(held.mode === 'time'){
+    body = `<div class="ns-edit"><input type="time" id="nsTime" value="${hhmm(q.at)}" aria-label="Time"/><button type="button" class="ns-btn primary" onclick="stripDone()">Done</button></div>`;
+  } else if(held.mode === 'note'){
+    body = `<div class="ns-edit"><input type="text" id="nsNote" value="${esc(q.note)}" placeholder="Note" aria-label="Note" onkeydown="if(event.key==='Enter')stripDone()"/><button type="button" class="ns-btn primary" onclick="stripDone()">Done</button></div>`;
+  } else {
+    body = `<div class="ns-acts">
+        <button type="button" class="ns-btn" onclick="stripMode('time')">Edit time</button>
+        <button type="button" class="ns-btn" onclick="stripMode('note')">${q.note ? 'Edit note' : 'Add note'}</button>
+        <button type="button" class="ns-btn" onclick="undoHeld()">Undo</button>
+      </div>
+      <div class="ns-bar"><i style="animation-duration:${HOLD_MS}ms"></i></div>`;
+  }
+  el.innerHTML = `<div class="now-strip-in"><div class="ns-top">${esc(q.label)} · ${hhmm(q.at)}${q.note ? ' · note added' : ''}</div>${body}</div>`;
+  el.classList.add('show');
+}
+
+function renderNow(){
+  rollDay();
+  const btns = NOW_ITEMS.map(it=>{
+    const n = today.items.filter(i=>i.event === it.event).length;
+    let ct, cls = 'ct';
+    if(it.bm){ ct = n ? `${n} today` : 'none logged today'; }
+    else if(n === 0){ ct = it.paused ? 'paused' : (it.zero || 'not yet today'); cls += ' none'; }
+    else if(it.perDay){ ct = `${n} of ${it.perDay} today`; if(n > it.perDay) cls += ' over'; }
+    else ct = `${n} today`;
+    const aria = it.bm ? ` aria-expanded="${state.bm ? 'true' : 'false'}"` : it.out ? ` aria-expanded="${state.out ? 'true' : 'false'}"` : '';
+    return `<button type="button" class="now-btn${it.paused?' paused':''}${it.bm?' bm':''}"${aria}${it.paused?' disabled':''} onclick="nowTap('${it.id}')">
+        <span class="nm">${it.event}</span><span class="sb">${it.sub}</span><span class="${cls}">${ct}</span>
+      </button>`;
+  }).join('');
+
+  let bmHtml = '';
+  if(state.bm){
+    const opt = (key, v) => `<button type="button" class="bm-opt${state.bm[key]===v?' on':''}" aria-pressed="${state.bm[key]===v}" onclick="bmSet('${key}','${v}')">${v}</button>`;
+    bmHtml = `<div class="bm-panel">
+        <div class="bm-head"><span>Bowel movement · ${hhmm(state.bm.at)}</span><button type="button" class="bm-cancel" onclick="bmCancel()">Cancel</button></div>
+        <div class="bm-qs">
+          <div class="bm-q"><div class="q">Loose?</div><div class="bm-opts">${opt('loose','No')}${opt('loose','Yes')}</div></div>
+          <div class="bm-q"><div class="q">Soon after a meal?</div><div class="bm-opts">${opt('meal','No')}${opt('meal','Yes')}</div></div>
+        </div>
+        <button type="button" class="bm-save" onclick="bmSave()">Save</button>
+      </div>`;
   }
 
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
-  }).then(()=> finish(true))
-    .catch(()=> finish(true));
+  let outHtml = '';
+  if(state.out){
+    const places = lsGet(LS_PLACES, []);
+    outHtml = `<div class="bm-panel out-panel">
+        <div class="bm-head"><span>Outside food · ${hhmm(state.out.at)}</span><button type="button" class="bm-cancel" onclick="outCancel()">Cancel</button></div>
+        <div class="out-where">
+          <label for="outPlace">Where from? <span>optional</span></label>
+          <input type="text" id="outPlace" list="outPlaces" autocomplete="off" value="${esc(state.out.place)}" oninput="outPlace(this.value)" placeholder="Restaurant or shop"/>
+          <datalist id="outPlaces">${places.map(p=>`<option value="${esc(p)}"></option>`).join('')}</datalist>
+        </div>
+        <div class="out-sizes">
+          <div class="q">How much? Tap one to save.</div>
+          ${OUT_SIZES.map(z=>`<button type="button" class="out-size" onclick="outSave('${z}')">${z}</button>`).join('')}
+        </div>
+      </div>`;
+  }
 
-  return false;
+  const items = today.items.slice().sort((a,b)=>a.at - b.at);
+  const rows = items.map(i=>{
+    const q = queue.find(x=>x.qid === i.qid);
+    let st;
+    if(!q) st = '<span class="st ok">in Sheet ✓</span>';
+    else if(q.failed) st = '<span class="st bad">not sent</span>';
+    else if(q.hold) st = '<span class="st wait">just now</span>';
+    else st = `<span class="st wait">${q.sending ? 'sending…' : 'waiting to send'}</span>`;
+    const note = i.note ? `<span class="nt">${esc(i.note)}</span>` : '';
+    return `<div class="today-row"><span>${esc(i.label)}${note}</span><span class="tm">${hhmm(i.at)}${st}</span></div>`;
+  }).join('');
+  const n = items.length;
+
+  return `
+    <p class="now-intro">One tap writes a timestamped row. Nothing to total, nothing to remember tonight.</p>
+    <div class="now-grid">${btns}</div>
+    ${outHtml}
+    ${bmHtml}
+    <div class="today-head"><span class="t">Today so far</span><span class="rule"></span><span class="n">${n} ${n===1?'entry':'entries'}</span></div>
+    ${n ? rows : '<div class="today-empty">Nothing logged yet today.</div>'}
+  `;
 }
 
 /* =========================================================
@@ -779,13 +1232,15 @@ function submitForm(evt, tab){
    ========================================================= */
 function loadViewTab(tab){
   const meta = TAB_META[tab];
-  if(state.viewCache[tab]){
-    if(tab==='oura') renderOuraTable(state.viewCache[tab]); else renderViewTable(tab, state.viewCache[tab]);
+  const limit = state.viewLimit[tab] || VIEW_LIMIT;
+  const cached = state.viewCache[tab];
+  if(cached && cached.limit === limit && Date.now() - cached.at < VIEW_CACHE_MS){
+    if(tab==='oura') renderOuraTable(cached.json); else renderViewTable(tab, cached.json);
     return;
   }
   const cbName = `gviz_cb_${tab}`;
   window[cbName] = function(json){
-    state.viewCache[tab] = json;
+    state.viewCache[tab] = { json, at:Date.now(), limit };
     if(state.section==='view' && currentTab()===tab){
       if(tab==='oura') renderOuraTable(json); else renderViewTable(tab, json);
     }
@@ -793,16 +1248,33 @@ function loadViewTab(tab){
   };
   const script = document.createElement('script');
   script.id = cbName+'_tag';
-  // Oura has 600+ rows — pull only the newest 30 (column A = day) for speed.
-  const query = tab==='oura' ? ';tq=' + encodeURIComponent('select * order by A desc limit 30') : '';
-  script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}${query}&sheet=${encodeURIComponent(meta.sheetName)}`;
+  // Pull only the newest rows of each tab (column A = day / timestamp).
+  // NOTE: the query must be its own "&tq=" parameter. Until Oct 2026 it was appended inside "tqx"
+  // with a semicolon, which Google silently ignores — so the Oura tab was loading its entire history.
+  const query = '&tq=' + encodeURIComponent(`select * order by A desc limit ${limit}`);
+  document.getElementById(cbName+'_tag')?.remove();
+  script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}${query}&headers=1&sheet=${encodeURIComponent(meta.sheetName)}`;
   script.onerror = function(){
+    script.remove();
     const main = document.getElementById('mainContent');
     if(state.section==='view' && currentTab()===tab){
       main.innerHTML = `<div class="error-state">Couldn't load "${meta.sheetName}" from the Sheet.<br/>Check the tab name matches exactly, and that link-sharing is still on.</div>`;
     }
   };
   document.body.appendChild(script);
+}
+
+// "Load more" — shown under a View tab when there may be older rows than the ones on screen.
+function loadMoreHtml(tab, shown){
+  const limit = state.viewLimit[tab] || VIEW_LIMIT;
+  if(shown < limit) return `<div class="view-foot">That is everything in ${TAB_META[tab].label}.</div>`;
+  return `<button type="button" class="load-more" id="loadMoreBtn" onclick="loadMore('${tab}')">Load ${VIEW_LIMIT} more</button>`;
+}
+function loadMore(tab){
+  state.viewLimit[tab] = (state.viewLimit[tab] || VIEW_LIMIT) + VIEW_LIMIT;
+  const b = document.getElementById('loadMoreBtn');
+  if(b){ b.disabled = true; b.textContent = 'Loading…'; }
+  loadViewTab(tab);
 }
 
 function parseGvizDate(v){
@@ -830,7 +1302,7 @@ function renderViewTable(tab, json){
   const cols = json.table.cols.map(c=>c.label || '');
   const rows = json.table.rows.map(r => r.c.map(cell => cell ? (cell.f !== undefined ? cell.f : cell.v) : ''));
 
-  const ordered = rows.slice().reverse();
+  const ordered = rows;   // already newest-first from the query
 
   const timestampIdx = cols.findIndex(c=>c.toLowerCase()==='timestamp');
   const noteIdx = cols.findIndex(c=>c.toLowerCase().includes('note'));
@@ -870,7 +1342,7 @@ function renderViewTable(tab, json){
     `;
   }).join('');
 
-  main.innerHTML = cardsHtml;
+  main.innerHTML = cardsHtml + loadMoreHtml(tab, rows.length);
 }
 
 function headlineFor(tab, cols, row){
@@ -1035,23 +1507,26 @@ function renderOuraTable(json){
           </div>
         </div>
       </div>`;
-  }).join('');
+  }).join('') + loadMoreHtml('oura', rowObjs.length);
 }
 function toggleOura(day){
   state.ouraExpanded[day] = !state.ouraExpanded[day];
-  if(state.viewCache['oura']) renderOuraTable(state.viewCache['oura']);
+  if(state.viewCache['oura']) renderOuraTable(state.viewCache['oura'].json);
 }
 function toggleOuraDeep(evt, day){
   evt.stopPropagation();
   state.ouraDeepOpen[day] = !state.ouraDeepOpen[day];
-  if(state.viewCache['oura']) renderOuraTable(state.viewCache['oura']);
+  if(state.viewCache['oura']) renderOuraTable(state.viewCache['oura'].json);
 }
 
 /* =========================================================
    INIT
    ========================================================= */
+rollDay();
 renderSubtabs();
 renderContent();
+renderSyncBadge();
+flushQueue();   // send anything left over from last time
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
