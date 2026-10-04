@@ -438,6 +438,10 @@
   .now-btn.paused{ background:#F7F6F4; border-style:dashed; cursor:default; }
   .now-btn.paused:active{ transform:none; background:#F7F6F4; }
   .now-btn.paused .nm{ color:var(--grey); }
+  .now-paused{ margin-top:16px; }
+  .now-paused .pl{ font-size:11px; letter-spacing:.04em; color:var(--grey); margin-bottom:8px; }
+  .now-paused .pc{ display:flex; flex-wrap:wrap; gap:6px; }
+  .now-paused-chip{ font-size:12px; color:var(--grey); background:#F7F6F4; border:1px dashed var(--line); border-radius:999px; padding:5px 11px; }
   .now-btn.bm{ background:var(--oura); border-color:var(--oura); }
   .now-btn.bm:active{ background:#3f6b64; }
   .now-btn.bm .nm, .now-btn.bm .ct{ color:#fff; }
@@ -574,16 +578,23 @@ const LATE_MS = 2*60*1000;       // a form entry sent later than this gets a "[l
 const OUT_SIZES = ["Full meal","Part of a meal","Snack or sweet"];
 
 // Now tab buttons. `event` and `value` are exactly what gets written to the Events sheet.
-// paused:true switches the button off (greyed, cannot be tapped). Remove it to bring that item back.
+// paused:true takes the item off the button grid and lists it under "Paused" (cannot be tapped).
+// Remove paused:true to bring that item back as a button.
+// 5 Oct 2026: zero-supplement baseline. Everything except the four live buttons is paused.
+// Vit C, Vit D and Activated charcoal moved here from the Nightly form; Slippery elm is new.
 const NOW_ITEMS = [
-  { id:"creatine",  event:"Creatine",       value:"3g",      sub:"3 g",       perDay:3 },
-  { id:"protein",   event:"Protein shake",  value:"1 scoop", sub:"1 scoop",   perDay:1 },
-  { id:"berberine", event:"Berberine",      value:"1 cap",   sub:"1 capsule", perDay:2 },
-  { id:"magnesium", event:"Magnesium",      value:"1 tab",   sub:"1 tablet",  perDay:3, paused:true },
-  // Flax (value "2 tsp") was removed 3 Oct 2026 to make room for Outside food. It is out indefinitely;
+  { id:"bm",        event:"Bowel movement",     sub:"tap, then two questions", bm:true },
+  { id:"outside",   event:"Outside food",       sub:"tap, then pick a size", zero:"none today", out:true },
+  { id:"charcoal",  event:"Activated charcoal", value:"1 dose", sub:"1 dose", zero:"none today" },
+  { id:"elm",       event:"Slippery elm",       value:"1 dose", sub:"1 dose", zero:"none today" },
+  { id:"vitc",      event:"Vit C",              value:"1/4 tsp",   sub:"\u00bc tsp", perDay:1, paused:true },
+  { id:"vitd",      event:"Vit D",              value:"60,000 IU", sub:"60,000 IU", paused:true },
+  { id:"protein",   event:"Protein shake",      value:"1 scoop", sub:"1 scoop",   perDay:1, paused:true },
+  { id:"creatine",  event:"Creatine",           value:"3g",      sub:"3 g",       perDay:3, paused:true },
+  { id:"berberine", event:"Berberine",          value:"1 cap",   sub:"1 capsule", perDay:2, paused:true },
+  { id:"magnesium", event:"Magnesium",          value:"1 tab",   sub:"1 tablet",  perDay:3, paused:true },
+  // Flax (value "2 tsp") was removed 3 Oct 2026. It is out indefinitely;
   // to bring it back add: { id:"flax", event:"Flax", value:"2 tsp", sub:"2 tsp" }
-  { id:"outside",   event:"Outside food",   sub:"tap, then pick a size", zero:"none today", out:true },
-  { id:"bm",        event:"Bowel movement", sub:"tap, then two questions", bm:true },
 ];
 
 const LOG_TABS  = ["morning","workout","nightly","drinks","journal"];
@@ -631,7 +642,6 @@ const FORM_SCHEMAS = {
     title: "Nightly",
     fields: [
       { key:"Bloating", label:"Bloating today?", type:"chips", options:["No","Yes"], required:true, hint:"Your overall impression of the whole day." },
-      { key:"Supplements", label:"Supplements", type:"multichip", options:["Vit C","Vit D (Fortnightly)","Activated Charcoal"], required:false },
       { key:"Hydration (ml)", label:"Hydration (ml)", type:"number", required:true },
       { key:"Other Fluids (ml)", label:"Other fluids", type:"text", required:false, hint:"E.g. Juice - 200ml" },
       { key:"Any Alcohol Today?", label:"Any alcohol today?", type:"chips", options:["Yes","No"], required:true },
@@ -1161,7 +1171,7 @@ function renderStrip(){
 
 function renderNow(){
   rollDay();
-  const btns = NOW_ITEMS.map(it=>{
+  const btns = NOW_ITEMS.filter(it=>!it.paused).map(it=>{
     const n = today.items.filter(i=>i.event === it.event).length;
     let ct, cls = 'ct';
     if(it.bm){ ct = n ? `${n} today` : 'none logged today'; }
@@ -1173,6 +1183,9 @@ function renderNow(){
         <span class="nm">${it.event}</span><span class="sb">${it.sub}</span><span class="${cls}">${ct}</span>
       </button>`;
   }).join('');
+
+  const pausedNames = NOW_ITEMS.filter(it=>it.paused).map(it=>`<span class="now-paused-chip">${it.event}</span>`).join('');
+  const pausedHtml = pausedNames ? `<div class="now-paused"><div class="pl">Paused \u2014 not being taken</div><div class="pc">${pausedNames}</div></div>` : '';
 
   let bmHtml = '';
   if(state.bm){
@@ -1222,6 +1235,7 @@ function renderNow(){
     <div class="now-grid">${btns}</div>
     ${outHtml}
     ${bmHtml}
+    ${pausedHtml}
     <div class="today-head"><span class="t">Today so far</span><span class="rule"></span><span class="n">${n} ${n===1?'entry':'entries'}</span></div>
     ${n ? rows : '<div class="today-empty">Nothing logged yet today.</div>'}
   `;
