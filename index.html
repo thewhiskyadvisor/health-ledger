@@ -924,11 +924,13 @@ function saveQueue(){ lsSet(LS_QUEUE, queue); renderSyncBadge(); }
 function enqueue(item){ queue.push(item); saveQueue(); flushQueue(); }
 
 // What actually gets written for a queued item.
+// "Entry ID" is the queue id, fixed when the entry is created and reused on every retry.
+// The Sheet script skips any Entry ID it already has, so a retry after a lost "ok" can't make a second row.
 function payloadFor(item){
   if(item.kind === 'event'){
-    return { sheet:EVENTS_SHEET, data:{ "Event Time":sheetTime(item.at), "Event":item.event, "Value":item.value, "Note":item.note || '' } };
+    return { sheet:EVENTS_SHEET, data:{ "Event Time":sheetTime(item.at), "Event":item.event, "Value":item.value, "Note":item.note || '', "Entry ID":item.qid } };
   }
-  const data = Object.assign({}, item.data);
+  const data = Object.assign({}, item.data, { "Entry ID":item.qid });
   // The Sheet stamps the time the row ARRIVES. If this entry is going out late, say when it was really logged.
   if(item.noteKey && Date.now() - item.at > LATE_MS){
     const d = new Date(item.at);
