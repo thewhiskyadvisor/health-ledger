@@ -584,6 +584,10 @@ const OUT_SIZES = ["Full meal","Part of a meal","Snack or sweet"];
 // Vit C, Vit D and Activated charcoal moved here from the Nightly form; Slippery elm is new.
 const NOW_ITEMS = [
   { id:"bm",        event:"Bowel movement",     sub:"tap, then two questions", bm:true },
+  // 22 Oct 2026: First phone pickup. One tap at the first real use of the phone in the morning.
+  // Minutes phone-free = tap time minus Oura wake time (bend), worked out in the weekly analysis.
+  // Not counted (don't tap): the coffee timer, the morning Oura sync, short required checks.
+  { id:"phone",     event:"First phone pickup", value:"1",       sub:"not the timer, Oura sync or a quick check", perDay:1, zero:"not yet today", label:"First phone pickup" },
   { id:"outside",   event:"Outside food",       sub:"tap, then pick a size", zero:"none today", out:true },
   { id:"charcoal",  event:"Activated charcoal", value:"1 dose", sub:"1 dose", zero:"none today" },
   { id:"elm",       event:"Slippery elm",       value:"1 dose", sub:"1 dose", zero:"none today" },
@@ -621,6 +625,7 @@ const FORM_SCHEMAS = {
       { key:"Weight (Kg)", label:"Weight (Kg)", type:"numOrNA", required:true, step:"0.1", hint:"No scale this morning? Tick the box to log NA instead of 0." },
       { key:"Conditions", label:"Conditions", type:"chips", options:["Fasted Post-Loo","Pre-Loo","Other"], required:true, allowOther:true, hideIfNA:"Weight (Kg)" },
       { key:"How Are You Feeling Today?", label:"How are you feeling today?", type:"text", required:true },
+      { key:"Screen In Bed (Last Night)", label:"Screen time in bed last night?", type:"chips", options:["No","Yes"], required:true, hint:"In bed, not before bed." },
       { key:"Note (Optional)", label:"Note", type:"textarea", required:false },
     ]
   },
@@ -1049,11 +1054,11 @@ function nowTap(id){
     renderContent();
     return;
   }
-  holdEntry({ event:it.event, value:it.value, label:`${it.event} · ${it.value}`, at:Date.now() });
+  holdEntry({ event:it.event, value:it.value, label:it.label || `${it.event} · ${it.value}`, at:Date.now() });
 }
 const LS_PLACES = 'hl_places_v1';   // remembered restaurant names, so the same place is spelled the same way
 function outPlace(v){ if(state.out) state.out.place = v; }
-function outCancel(){ state.out = null; renderContent(); }
+function outCancel(){ if(document.activeElement) document.activeElement.blur(); state.out = null; renderContent(); }
 function outSave(size){
   const o = state.out; if(!o) return;
   const place = (o.place || '').trim();
@@ -1062,6 +1067,7 @@ function outSave(size){
     places.unshift(place);
     lsSet(LS_PLACES, places.slice(0, 40));
   }
+  if(document.activeElement) document.activeElement.blur();
   state.out = null;
   holdEntry({ event:'Outside food', value:size, label:`Outside food · ${size.toLowerCase()}`, at:o.at, note:place });
 }
@@ -1204,13 +1210,12 @@ function renderNow(){
 
   let outHtml = '';
   if(state.out){
-    const places = lsGet(LS_PLACES, []);
+    // 22 Oct 2026: place suggestions removed (Android Chrome left the popup stuck on screen). Type the place each time.
     outHtml = `<div class="bm-panel out-panel">
         <div class="bm-head"><span>Outside food · ${hhmm(state.out.at)}</span><button type="button" class="bm-cancel" onclick="outCancel()">Cancel</button></div>
         <div class="out-where">
           <label for="outPlace">Where from? <span>optional</span></label>
-          <input type="text" id="outPlace" list="outPlaces" autocomplete="off" value="${esc(state.out.place)}" oninput="outPlace(this.value)" placeholder="Restaurant or shop"/>
-          <datalist id="outPlaces">${places.map(p=>`<option value="${esc(p)}"></option>`).join('')}</datalist>
+          <input type="text" id="outPlace" autocomplete="off" value="${esc(state.out.place)}" oninput="outPlace(this.value)" placeholder="Restaurant or shop"/>
         </div>
         <div class="out-sizes">
           <div class="q">How much? Tap one to save.</div>
