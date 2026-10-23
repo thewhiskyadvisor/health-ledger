@@ -602,7 +602,7 @@ const NOW_ITEMS = [
 ];
 
 const LOG_TABS  = ["morning","workout","nightly","drinks","journal"];
-const VIEW_TABS = ["oura","morning","workout","nightly","drinks","journal"];
+const VIEW_TABS = ["oura","screens","morning","workout","nightly","drinks","journal"];
 const TAB_META = {
   morning:  { label:"Morning",  accent:"morning",  sheetName:"Morning" },
   workout:  { label:"Workout",  accent:"workout",  sheetName:"Workout" },
@@ -610,6 +610,8 @@ const TAB_META = {
   drinks:   { label:"Drinks",   accent:"drinks",   sheetName:"Drinks" },
   oura:     { label:"Oura",     accent:"oura",     sheetName:"Oura" },
   journal:  { label:"Journal",  accent:"journal",  sheetName:"Daily Journal" },
+  // 23 Oct 2026: Screens is a formula tab in the Sheet (Oura wake time, first phone pickup, minutes, screen in bed). View only.
+  screens:  { label:"Screens",  accent:"oura",     sheetName:"Screens" },
 };
 
 /* =========================================================
@@ -1345,6 +1347,7 @@ function renderViewTable(tab, json){
     const headline = headlineFor(tab, cols, row);
     const gridHtml = cols.map((c,i)=>{
       if(i===timestampIdx || i===noteIdx || i===entryIdx || dupeIdx[i]) return '';
+      if(tab==='screens' && c==='Date') return '';   // already in the headline
       if(row[i]===''||row[i]===undefined||row[i]===null) return '';
       return `<div style="font-size:11px;color:var(--grey);">${cleanColLabel(c)}</div><div><b>${row[i]}</b></div>`;
     }).join('');
@@ -1384,6 +1387,11 @@ function headlineFor(tab, cols, row){
     const type = get('1. Drink Type') || 'Drink';
     const brand = get('1b. Drink / Brand');
     return brand ? `${type} — ${brand}` : type;
+  }
+  if(tab==='screens'){
+    const d = get('Date') || '';
+    const m = get('Phone-free minutes');
+    return (m==='' || m==null) ? `${d} · —` : `${d} · ${m} min phone-free`;
   }
   if(tab==='journal'){
     const entry = get('Entry') || '';
