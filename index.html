@@ -422,6 +422,7 @@
   /* ---------- NOW (one-tap capture) ---------- */
   .now-intro{ margin:0 0 14px; font-size:12.5px; line-height:1.5; color:var(--grey); }
   .now-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .now-divider{ height:0; border:0; border-top:1px solid var(--line-soft); margin:16px 0; }
   .now-btn{
     min-height:92px; display:flex; flex-direction:column; align-items:flex-start;
     justify-content:space-between; gap:6px; padding:14px;
@@ -442,10 +443,6 @@
   .now-paused .pl{ font-size:11px; letter-spacing:.04em; color:var(--grey); margin-bottom:8px; }
   .now-paused .pc{ display:flex; flex-wrap:wrap; gap:6px; }
   .now-paused-chip{ font-size:12px; color:var(--grey); background:#F7F6F4; border:1px dashed var(--line); border-radius:999px; padding:5px 11px; }
-  .now-btn.bm{ background:var(--oura); border-color:var(--oura); }
-  .now-btn.bm:active{ background:#3f6b64; }
-  .now-btn.bm .nm, .now-btn.bm .ct{ color:#fff; }
-  .now-btn.bm .sb{ color:#eaf2f0; }
   .bm-panel{
     margin-top:12px; border:1px solid var(--oura); border-radius:12px; padding:16px;
     display:flex; flex-direction:column; gap:14px;
@@ -583,21 +580,28 @@ const OUT_SIZES = ["Full meal","Part of a meal","Snack or sweet"];
 // 5 Oct 2026: zero-supplement baseline. Everything except the four live buttons is paused.
 // Vit C, Vit D and Activated charcoal moved here from the Nightly form; Slippery elm is new.
 const NOW_ITEMS = [
-  { id:"bm",        event:"Bowel movement",     sub:"tap, then two questions", bm:true },
+  // 25 Oct 2026 (Uday): the Now tab has two groups. `daily:true` items sit in the top group; everything
+  // else that is live sits below a light dividing line. Order within each group = order in this list.
+  // Top group (in this order): First phone pickup, Bowel movement, Outside food.
+  // Below the line (in this order): Berberine, Vit D, Activated charcoal, Slippery elm.
   // 22 Oct 2026: First phone pickup. One tap at the first real use of the phone in the morning.
   // Minutes phone-free = tap time minus Oura wake time (bend), worked out in the weekly analysis.
   // Not counted (don't tap): the coffee timer, the morning Oura sync, short required checks.
-  { id:"phone",     event:"First phone pickup", value:"1",       sub:"not the timer, Oura sync or a quick check", perDay:1, zero:"not yet today", label:"First phone pickup" },
-  { id:"outside",   event:"Outside food",       sub:"tap, then pick a size", zero:"none today", out:true },
-  { id:"charcoal",  event:"Activated charcoal", value:"1 dose", sub:"1 dose", zero:"none today" },
-  { id:"elm",       event:"Slippery elm",       value:"1 dose", sub:"1 dose", zero:"none today" },
-  { id:"vitc",      event:"Vit C",              value:"1/4 tsp",   sub:"\u00bc tsp", perDay:1, paused:true },
+  // 25 Oct 2026: caption removed from the button (Uday knows the rule); the rule above still stands.
+  { id:"phone",     event:"First phone pickup", value:"1",       sub:"", perDay:1, zero:"not yet today", label:"First phone pickup", daily:true },
+  { id:"bm",        event:"Bowel movement",     sub:"tap, then two questions", bm:true, daily:true },
+  { id:"outside",   event:"Outside food",       sub:"", zero:"none today", out:true, daily:true },
+  // 24 Oct 2026: Berberine restarted first after the blood draw (Uday's call). Old dose: 1 cap breakfast + 1 cap lunch, with food.
+  { id:"berberine", event:"Berberine",          value:"1 cap",   sub:"1 capsule \u00b7 with food", perDay:2, zero:"none today" },
   // 24 Oct 2026: Vit D restarted after the blood draw, monthly (Dr Ranganath's prescription).
-  { id:"vitd",      event:"Vit D",              value:"60,000 IU", sub:"60,000 IU · monthly", zero:"none today" },
+  { id:"vitd",      event:"Vit D",              value:"60,000 IU", sub:"60,000 IU \u00b7 monthly", zero:"none today" },
+  { id:"charcoal",  event:"Activated charcoal", value:"1 dose", sub:"1 dose", zero:"none today" },
+  // Slippery elm: kept for now; Uday thinks a button may not be needed - up for review soon (25 Oct 2026).
+  { id:"elm",       event:"Slippery elm",       value:"1 dose", sub:"1 dose", zero:"none today" },
+  // Paused (listed under "Paused", cannot be tapped):
+  { id:"vitc",      event:"Vit C",              value:"1/4 tsp",   sub:"\u00bc tsp", perDay:1, paused:true },
   { id:"protein",   event:"Protein shake",      value:"1 scoop", sub:"1 scoop",   perDay:1, paused:true },
   { id:"creatine",  event:"Creatine",           value:"3g",      sub:"3 g",       perDay:3, paused:true },
-  // 24 Oct 2026: Berberine restarted first after the blood draw (Uday's call). Old dose: 1 cap breakfast + 1 cap lunch, with food.
-  { id:"berberine", event:"Berberine",          value:"1 cap",   sub:"1 capsule · with food", perDay:2, zero:"none today" },
   { id:"magnesium", event:"Magnesium",          value:"1 tab",   sub:"1 tablet",  perDay:3, paused:true },
   // Flax (value "2 tsp") was removed 3 Oct 2026. It is out indefinitely;
   // to bring it back add: { id:"flax", event:"Flax", value:"2 tsp", sub:"2 tsp" }
@@ -1183,18 +1187,22 @@ function renderStrip(){
 
 function renderNow(){
   rollDay();
-  const btns = NOW_ITEMS.filter(it=>!it.paused).map(it=>{
+  const mkBtn = it=>{
     const n = today.items.filter(i=>i.event === it.event).length;
     let ct, cls = 'ct';
-    if(it.bm){ ct = n ? `${n} today` : 'none logged today'; }
+    if(n === 0 && it.bm){ ct = 'none today'; cls += ' none'; }
+    else if(it.bm){ ct = `${n} today`; }
     else if(n === 0){ ct = it.paused ? 'paused' : (it.zero || 'not yet today'); cls += ' none'; }
     else if(it.perDay){ ct = `${n} of ${it.perDay} today`; if(n > it.perDay) cls += ' over'; }
     else ct = `${n} today`;
     const aria = it.bm ? ` aria-expanded="${state.bm ? 'true' : 'false'}"` : it.out ? ` aria-expanded="${state.out ? 'true' : 'false'}"` : '';
     return `<button type="button" class="now-btn${it.paused?' paused':''}${it.bm?' bm':''}"${aria}${it.paused?' disabled':''} onclick="nowTap('${it.id}')">
-        <span class="nm">${it.event}</span><span class="sb">${it.sub}</span><span class="${cls}">${ct}</span>
+        <span class="nm">${it.event}</span>${it.sub ? `<span class="sb">${it.sub}</span>` : ''}<span class="${cls}">${ct}</span>
       </button>`;
-  }).join('');
+  };
+  const live = NOW_ITEMS.filter(it=>!it.paused);
+  const dailyBtns = live.filter(it=>it.daily).map(mkBtn).join('');
+  const otherBtns = live.filter(it=>!it.daily).map(mkBtn).join('');
 
   const pausedNames = NOW_ITEMS.filter(it=>it.paused).map(it=>`<span class="now-paused-chip">${it.event}</span>`).join('');
   const pausedHtml = pausedNames ? `<div class="now-paused"><div class="pl">Paused \u2014 not being taken</div><div class="pc">${pausedNames}</div></div>` : '';
@@ -1242,10 +1250,11 @@ function renderNow(){
   const n = items.length;
 
   return `
-    <p class="now-intro">One tap writes a timestamped row. Nothing to total, nothing to remember tonight.</p>
-    <div class="now-grid">${btns}</div>
+    <div class="now-grid">${dailyBtns}</div>
     ${outHtml}
     ${bmHtml}
+    <hr class="now-divider"/>
+    <div class="now-grid">${otherBtns}</div>
     ${pausedHtml}
     <div class="today-head"><span class="t">Today so far</span><span class="rule"></span><span class="n">${n} ${n===1?'entry':'entries'}</span></div>
     ${n ? rows : '<div class="today-empty">Nothing logged yet today.</div>'}
